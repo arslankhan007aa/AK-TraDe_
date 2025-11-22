@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AK Trade — Full System (Firebase)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* FANCY STYLES START */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap'); /* Changed Font */
+
+body{
+  background: #000;
+  background: linear-gradient(180deg, #000044, #000); 
+  color: #E0FFFF;
+  font-family: 'Poppins', sans-serif; /* Applied new font */
+  margin:0;
+  padding-bottom:70px;
+  min-height: 100vh;
+}
+.header-title {
+    text-align: center;
+    padding: 20px 0;
+    font-size: 2.5em; 
+    font-weight: 700;
+    color: #00FFFF;
+    text-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF, 0 0 15px #0088FF;
+    letter-spacing: 3px;
+    margin-bottom: 0;
+    font-family: 'Poppins', sans-serif; /* Ensure title uses new font */
+}
+.box{
+  background:rgba(0,10,30,0.7);
+  backdrop-filter:blur(8px);
+  padding:20px;
+  border-radius:16px;
+  margin:15px;
+  box-shadow:0 0 15px #00FFFF55, inset 0 0 5px #00FFFF33;
+  border: 1px solid #00FFFF44;
+}
+input, select{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:2px solid #00FFFF;
+  background:#0A192F;
+  color:#fff;
+  margin-top:10px;
+  font-family: 'Poppins', sans-serif; /* Applied new font */
+  box-sizing: border-box;
+}
+input:focus, select:focus {
+    border-color: #00CCFF;
+    box-shadow: 0 0 8px #00CCFF;
+    outline: none;
+}
+input[type="file"]{
+    border: none;
+    padding: 0;
+    margin-top: 15px;
+}
+button{
+  width:100%;
+  padding:12px;
+  background:#00FFFF;
+  color:#000;
+  border:none;
+  border-radius:10px;
+  margin-top:10px;
+  font-size:16px;
+  font-weight:700;
+  box-shadow:0 0 15px #00FFFFCC; 
+  transition: background 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif; /* Applied new font */
+}
+button:hover { 
+    background: #00CCFF; 
+    box-shadow: 0 0 20px #00CCFFDD;
+}
+button:disabled {
+    background: #334 !important;
+    color: #AAA !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
+}
+h2{ 
+  color:#33FFFF;
+  font-weight:700;
+  margin-top: 0;
+  border-bottom: 1px solid #33FFFF55;
+  padding-bottom: 8px;
+  font-family: 'Poppins', sans-serif; /* Applied new font */
+}
+.plan-btn {
+    background: #00E676;
+    color: #000;
+    box-shadow: 0 0 10px #00E676AA;
+    margin-top: 8px;
+}
+.plan-btn:hover { background: #00C853; }
+nav{
+text-align:center;
+padding: 5px 0;
+background:rgba(0,0,0,0.85);
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+z-index:999;
+box-shadow:0 -5px 15px #00FFFF55;
+border-top: 1px solid #00FFFF44;
+display: flex;
+justify-content: space-around;
+overflow-x: auto;
+white-space: nowrap;
+}
+nav a{
+color:#33FFFF;
+margin:0 4px;
+padding: 8px 6px;
+font-size:12px;
+text-decoration:none;
+font-weight:600;
+font-family: 'Poppins', sans-serif; /* Applied new font */
+}
+nav a:hover {
+    color: #000;
+    background: #33FFFF;
+}
+nav .channelBtn{
+  color:#000;
+  background:#FF00AA;
+  padding:6px 10px;
+  border-radius:6px;
+  box-shadow: 0 0 8px #FF00AA;
+}
+.hidden{ display:none; }
+.box p b { color: #FFEA00; }
+.plan-item {
+    background:#0A192F;
+    padding:10px;
+    border-radius:10px;
+    margin-bottom:10px;
+    border-left: 4px solid #00FFFF;
+}
+.plan-item b {
+    font-size: 1em;
+    color: #00FF99;
+}
+/* FANCY STYLES END */
+</style>
+</head>
+<body onload="checkUserStatus()">
+
+<h1 class="header-title">AK TRADE</h1>
+
+<div id="loginPage">
+  <div class="box">
+    <h2>Login 🔑</h2>
+    <input id="loginUser" placeholder="Username">
+    <input id="loginPass" placeholder="Password" type="password">
+    <button onclick="login()">Login</button>
+    <button onclick="showSignup()" style="background:#444; box-shadow:none; color:#fff;">Create Account</button>
+  </div>
+</div>
+
+<div id="signupPage" class="hidden">
+  <div class="box">
+    <h2>Create Account ✍️</h2>
+    <input id="newUser" placeholder="Username">
+    <input id="newPass" placeholder="Password" type="password">
+    <input id="refBy" placeholder="Referral Username (Optional)">
+    <button onclick="signup()">Create Account</button>
+    <button onclick="showLogin()" style="background:#444; box-shadow:none; color:#fff;">Back to Login</button>
+  </div>
+</div>
+
+<div id="dashboard" class="hidden">
+
+<div class="box">
+  <h2>Dashboard 🏠</h2>
+  <p id="welcome"></p>
+  <p id="bal">Balance: 0 Rs</p>
+  <p id="planName">Active Plan: None</p>
+  <p id="planExpiry">Plan Expiry: —</p>
+</div>
+
+<div id="deposit" class="box hidden">
+  <h2>Deposit 💸</h2>
+  <p style="color:#00C8FF;">**Note:** Select plan first.</p>
+  <select id="depositType">
+    <option>JazzCash</option>
+    <option>Easypaisa</option>
+  </select>
+  <input id="depositAmount" placeholder="Enter Deposit Amount (Auto-filled by Plan)">
+  <p style="margin-top:10px;">Upload Screenshot:</p>
+  <input type="file" id="ssUpload" accept="image/*">
+  <p style="margin-top:10px;background:#0A192F;padding:10px;border-radius:8px;border-left: 3px solid #FFEA00; font-size:14px;">
+    Pay to: <b>03046416033 (Ghulam Ruqayya)</b>
+  </p>
+  <button onclick="depositReq()">Submit Deposit</button>
+</div>
+
+<div id="withdraw" class="box hidden">
+  <h2>Withdraw 🏧</h2>
+  <p style="color:yellow;">Available Balance: <b id="availableBal">0 Rs</b></p>
+  <select id="widType">
+    <option>JazzCash</option>
+    <option>Easypaisa</option>
+  </select>
+  <input id="widNum" placeholder="Your Number">
+  <input id="widName" placeholder="Your Name">
+  <input id="widAmount" placeholder="Amount (Min 10 Rs)">
+  <button onclick="withdrawReq()">Submit Withdraw</button>
+</div>
+
+<div id="task" class="box hidden">
+  <h2>Daily Task ⭐</h2>
+  <p style="font-size:14px;">Watch video for 15 seconds to collect income.</p>
+  <p id="taskTimer" style="color:red; font-weight:bold;">Task Status: Ready to start.</p>
+
+  <a id="tiktokLink" href="https://vt.tiktok.com/ZSf6ECxjw/" target="_blank">
+    <button id="startTaskBtn" onclick="startTaskTimer(event)">Start Watching TikTok (15 Sec)</button>
+  </a>
+  <button id="collectTaskBtn" onclick="completeTask()" disabled style="background:#888;">Collect Bonus</button>
+</div>
+
+<div id="referral" class="box hidden">
+  <h2>Referral 🧑‍🤝‍🧑</h2>
+  <p>Your Username: <b id="refName"></b></p>
+  <p>Your Referral Link:</p>
+  <p style="background:#0A192F;padding:10px;border-radius:8px;border: 1px solid #00FFFF55; font-size:14px;">
+    aktrade.com/?ref=<span id="refLink"></span>
+  </p>
+</div>
+
+<div id="plan" class="box hidden">
+  <h2>Plans 💎</h2>
+  <div class="plan-item">
+    <b>Plan 1:</b> Deposit 200 → Daily 15Rs → 50 Days    
+    <button class="plan-btn" onclick="selectPlan(200, 15, 'Plan 1')">Buy Plan 1</button>
+  </div>
+  <div class="plan-item">
+    <b>Plan 2:</b> Deposit 600 → Daily 25Rs → 50 Days    
+    <button class="plan-btn" onclick="selectPlan(600, 25, 'Plan 2')">Buy Plan 2</button>
+  </div>
+  <div class="plan-item">
+    <b>Plan 3:</b> Deposit 900 → Daily 35Rs → 50 Days    
+    <button class="plan-btn" onclick="selectPlan(900, 35, 'Plan 3')">Buy Plan 3</button>
+  </div>
+  <div class="plan-item">
+    <b>Plan 4:</b> Deposit 1500 → Daily 60Rs → 50 Days    
+    <button class="plan-btn" onclick="selectPlan(1500, 60, 'Plan 4')">Buy Plan 4</button>
+  </div>
+  <div class="plan-item">
+    <b>Plan 5:</b> Deposit 2500 → Daily 130Rs → 50 Days    
+    <button class="plan-btn" onclick="selectPlan(2500, 130, 'Plan 5')">Buy Plan 5</button>
+  </div>
+  <div class="plan-item">
+    <b>Plan 6:</b> Deposit 3200 → Daily 170Rs → 50 Days    
+    <button class="plan-btn" onclick="selectPlan(3200, 170, 'Plan 6')">Buy Plan 6</button>
+  </div>
+</div>
+
+<div id="profile" class="box hidden">
+  <h2>Profile 👤</h2>
+  <p>Username: <b id="proUser"></b></p>
+  <p>Balance: <b id="proBal"></b></p>
+  <button onclick="logout()">Logout</button>
+</div>
+
+</div>
+
+<nav id="navBar" class="hidden">
+  <a onclick="showSection('deposit')">Deposit</a>
+  <a onclick="showSection('withdraw')">Withdraw</a>
+  <a onclick="showSection('task')">Task</a>
+  <a onclick="showSection('referral')">Referral</a>
+  <a onclick="showSection('plan')">Plan</a>
+  <a onclick="showSection('profile')">Profile</a>
+  <a class="channelBtn" href="https://whatsapp.com/channel/0029Vb6rV2aL7UVYj5WZvi3y" target="_blank">Channel</a>
+</nav>
+
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-app.js";
+import { getDatabase, ref, set, get, child, update, onValue, push } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCVcdtynCplhZkLvqLJer99z3PHb6W2VEs",
+  authDomain: "ak-trade-f8c93.firebaseapp.com",
+  databaseURL: "https://ak-trade-f8c93-default-rtdb.firebaseio.com",
+  projectId: "ak-trade-f8c93",
+  storageBucket: "ak-trade-f8c93.firebasestorage.app",
+  messagingSenderId: "873979008978",
+  appId: "1:873979008978:web:70564474ef8f09fd059a0b"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app); 
+const dbRef = ref(db);
+let currentUser = null; 
+let taskInterval = null; 
+const TASK_DURATION_MS = 15000;
+
+function checkUserStatus() {
+    const storedUser = localStorage.getItem("currentUser");
+    if (storedUser) {
+        currentUser = storedUser;
+        loadDashboard();
+    } else {
+        showLogin();
+    }
+}
+window.checkUserStatus = checkUserStatus;
+
+async function signup(){
+  let u = newUser.value.trim();
+  let p = newPass.value.trim();
+  let r = refBy.value.trim();
+
+  if(!u || !p) return alert("Username and Password are REQUIRED!");
+
+  if(r && r !== "admin") {
+      const refSnapshot = await get(child(dbRef, 'users/' + r));
+      if(!refSnapshot.exists()) return alert("Referral username does NOT exist!");
+  }
+
+  const userSnapshot = await get(child(dbRef, 'users/' + u));
+  if(userSnapshot.exists()) return alert("User already exists");
+
+  const userData = {
+    pass: p, bal: 10, plan: null, daily: 0, planExpiry: null, ref: r || null,
+    pendingDeposit: null, adminApproved: false, tasksDone: 0, lastTaskDay: null
+  };
+  
+  try {
+      await set(ref(db, 'users/' + u), userData);
+      alert("Account created! 10 Rs Bonus Added. Please Login.");
+      showLogin();
+  } catch(error) {
+      alert("Signup failed: " + error.message);
+  }
+}
+window.signup = signup;
+
+async function login(){
+  let u = loginUser.value.trim();
+  let p = loginPass.value.trim();
+
+  const snapshot = await get(child(dbRef, 'users/' + u));
+  
+  if(!snapshot.exists() || snapshot.val().pass !== p) return alert("Login Failed: Incorrect Username or Password.");
+
+  currentUser = u;
+  localStorage.setItem("currentUser", u); 
+  loadDashboard();
+}
+window.login = login;
+
+function loadDashboard(){
+    if(!currentUser) return showLogin();
+    const userRef = ref(db, 'users/' + currentUser);
+    onValue(userRef, (snapshot) => {
+        if (!snapshot.exists()) { logout(); return; }
+        let d = snapshot.val();
+
+        if(d.adminApproved && d.pendingDeposit){ activatePlanNow(d); return; }
+        
+        welcome.innerHTML = "Welcome, <b>" + currentUser + "</b>";
+        bal.innerHTML = "Balance: <b>" + d.bal + " Rs</b>";
+        planName.innerHTML = "Active Plan: <b>" + (d.plan ? d.plan : "None") + "</b>";
+        planExpiry.innerHTML = "Plan Expiry: <b>" + (d.planExpiry ? d.planExpiry : "—") + "</b>";
+        refName.innerHTML = currentUser;
+        refLink.innerHTML = currentUser;
+        proUser.innerHTML = currentUser;
+        proBal.innerHTML = d.bal + " Rs";
+        availableBal.innerHTML = d.bal + " Rs";
+        
+        const depositInput = document.getElementById('depositAmount');
+        if (d.pendingDeposit) {
+            depositInput.value = d.pendingDeposit.amount;
+            depositInput.setAttribute('readonly', 'readonly');
+        } else {
+            depositInput.value = '';
+            depositInput.removeAttribute('readonly');
+        }
+
+        loginPage.classList.add("hidden");
+        signupPage.classList.add("hidden");
+        dashboard.classList.remove("hidden");
+        navBar.classList.remove("hidden");
+
+        if(loginPage.classList.contains("hidden") && signupPage.classList.contains("hidden")) {
+            showSection("deposit");
+        }
+        updateTaskUI(); 
+    }, { onlyOnce: false });
+}
+window.loadDashboard = loadDashboard; 
+
+function showSection(sec){
+  ["deposit","withdraw","task","referral","plan","profile"].forEach(id=>{
+    document.getElementById(id).classList.add("hidden");
+  });
+  document.getElementById(sec).classList.remove("hidden");
+}
+window.showSection = showSection;
+
+// MODIFIED FUNCTION: Automatically opens Deposit section after selecting plan
+async function selectPlan(amount, dailyIncome, planName){
+  if(!currentUser) return alert("Please log in first.");
+
+  const snapshot = await get(child(dbRef, 'users/' + currentUser));
+  let d = snapshot.val();
+
+  if (d.plan) return alert("You already have an active plan!");
+  if (d.pendingDeposit) return alert("Deposit request pending approval! Check Deposit section.");
+
+  const pendingDepositData = { plan: planName, daily: dailyIncome, amount: amount, method: null, screenshot: null, date: null };
+  
+  try {
+      await update(ref(db, 'users/' + currentUser), { pendingDeposit: pendingDepositData, adminApproved: false });
+      alert(`Plan ${planName} selected. Deposit ${amount} Rs now to activate.`);
+      
+      // AUTO-FILL and OPEN DEPOSIT
+      document.getElementById('depositAmount').value = amount;
+      document.getElementById('depositAmount').setAttribute('readonly', 'readonly');
+      showSection("deposit"); // Go to Deposit tab
+      
+  } catch(error) {
+      alert("Plan selection failed: " + error.message);
+  }
+}
+window.selectPlan = selectPlan;
+
+function depositReq(){
+    if(!currentUser) return alert("Please log in first.");
+
+    let amount = depositAmount.value.trim();
+    let type = depositType.value;
+    let ssFile = ssUpload.files[0]; 
+
+    get(child(dbRef, 'users/' + currentUser)).then(snapshot => {
+        let d = snapshot.val();
+
+        if(!d.pendingDeposit) return alert("Select a plan from 'Plan' section first!");
+        if(d.pendingDeposit.amount != amount) return alert("Deposit amount must match the selected plan amount (" + d.pendingDeposit.amount + " Rs).");
+        if(!ssFile) return alert("Upload the payment screenshot!");
+
+        let reader = new FileReader();
+        reader.onload = function(e){
+            const updates = { 'pendingDeposit/method': type, 'pendingDeposit/screenshot': e.target.result, 'pendingDeposit/date': new Date().toLocaleString() };
+            update(ref(db, 'users/' + currentUser), updates)
+            .then(() => { alert("Deposit request sent! Admin will approve soon."); })
+            .catch(error => { alert("Deposit request failed: " + error.message); });
+        };
+        reader.readAsDataURL(ssFile);
+    }).catch(error => {
+        alert("Failed to fetch user data for deposit: " + error.message);
+    });
+}
+window.depositReq = depositReq;
+
+async function activatePlanNow(d){
+    if(!currentUser) return; 
+    const now = new Date();
+    now.setDate(now.getDate() + 50);
+    const planExpiryDate = now.toDateString();
+    const updates = { plan: d.pendingDeposit.plan, daily: d.pendingDeposit.daily, planExpiry: planExpiryDate, pendingDeposit: null, adminApproved: false };
+
+    try {
+        await update(ref(db, 'users/' + currentUser), updates);
+        alert("Your plan has been activated (Admin Approved)!");
+    } catch(error) {
+        alert("Plan activation failed: " + error.message);
+    }
+}
+
+async function withdrawReq(){
+    if(!currentUser) return alert("Please log in first.");
+
+    let num = widNum.value.trim();
+    let name = widName.value.trim();
+    let amount = parseInt(widAmount.value.trim());
+    let type = widType.value;
+    const MIN_WITHDRAW = 10;
+
+    const snapshot = await get(child(dbRef, 'users/' + currentUser));
+    let d = snapshot.val();
+    
+    if (!d.plan) return alert("Buy an active plan first to withdraw.");
+    if (isNaN(amount) || amount < MIN_WITHDRAW) return alert("Minimum withdrawal is " + MIN_WITHDRAW + " Rs.");
+    if (amount > d.bal) return alert("Request Failed: Insufficient balance. You only have " + d.bal + " Rs.");
+    if (!num || !name) return alert("Enter account details.");
+
+    const withdrawalData = { user: currentUser, type: type, number: num, name: name, amount: amount, status: 'Pending', timestamp: new Date().toLocaleString() };
+    
+    try {
+        await push(ref(db, 'withdrawalRequests'), withdrawalData);
+        await update(ref(db, 'users/' + currentUser), { bal: d.bal - amount });
+        alert(`Withdraw request sent! ${amount} Rs deducted.`);
+    } catch(error) {
+        alert("Withdrawal failed: " + error.message);
+    }
+}
+window.withdrawReq = withdrawReq;
+
+function startTaskTimer(event) {
+    event.preventDefault(); 
+    if (localStorage.getItem('task_complete_ready') === 'true') {
+        return alert("Already watched! Click 'Collect Bonus'."); 
+    }
+    
+    if (localStorage.getItem('task_started_time')) {
+        window.open(document.getElementById('tiktokLink').href, '_blank');
+        updateTaskUI();
+        return;
+    }
+
+    const startTime = Date.now();
+    localStorage.setItem('task_started_time', startTime);
+    localStorage.removeItem('task_complete_ready');
+
+    window.open(document.getElementById('tiktokLink').href, '_blank');
+    updateTaskUI(); 
+}
+window.startTaskTimer = startTaskTimer;
+
+function updateTaskUI() {
+    if (taskInterval) clearInterval(taskInterval);
+
+    const startTime = localStorage.getItem('task_started_time');
+    const timerDisplay = document.getElementById('taskTimer');
+    const startBtn = document.getElementById('startTaskBtn');
+    const collectBtn = document.getElementById('collectTaskBtn');
+
+    if (!startTime || localStorage.getItem('task_complete_ready') === 'true') {
+        const isReady = localStorage.getItem('task_complete_ready') === 'true';
+
+        timerDisplay.innerHTML = isReady ? "<span style='color:#00AA00;'>✅ Watched! Collect Bonus Now.</span>" : "Task Status: Ready to start.";
+        startBtn.disabled = isReady;
+        startBtn.style.background = isReady ? '#555' : '#00FFFF';
+        startBtn.innerHTML = isReady ? 'Watched' : 'Start Watching TikTok (15 Sec)';
+        collectBtn.disabled = !isReady;
+        collectBtn.style.background = isReady ? '#00E676' : '#888';
+        collectBtn.innerHTML = 'Collect Bonus';
+
+        if(isReady && !startTime) { localStorage.removeItem('task_complete_ready'); updateTaskUI(); } // State correction
+        
+        if(!isReady && !startTime) {
+            get(child(dbRef, 'users/' + currentUser)).then(snapshot => {
+                let d = snapshot.val();
+                if (d && d.lastTaskDay !== new Date().toDateString()) {
+                    localStorage.removeItem('task_started_time');
+                    localStorage.removeItem('task_complete_ready');
+                }
+            }).catch(e => console.error("Error checking user data for task reset:", e));
+        }
+        return;
+    }
+
+    taskInterval = setInterval(() => {
+        const elapsedTime = Date.now() - parseInt(startTime);
+        const remainingTime = TASK_DURATION_MS - elapsedTime;
+
+        if (remainingTime <= 0) {
+            clearInterval(taskInterval);
+            localStorage.setItem('task_complete_ready', 'true');
+            timerDisplay.innerHTML = "<span style='color:#00AA00;'>✅ Watched! Collect Bonus Now.</span>";
+            startBtn.disabled = true; startBtn.style.background = '#555'; startBtn.innerHTML = 'Watched';
+            collectBtn.disabled = false; collectBtn.style.background = '#00E676'; collectBtn.innerHTML = 'Collect Bonus';
+        } else {
+            const seconds = Math.ceil(remainingTime / 1000);
+            timerDisplay.innerHTML = `⏳ Time Remaining: <b style="font-size:1.2em; color: #FFEA00;">${seconds}</b> seconds.`;
+            startBtn.disabled = true; startBtn.style.background = '#555'; startBtn.innerHTML = 'Watching...';
+            collectBtn.disabled = true; collectBtn.style.background = '#888'; collectBtn.innerHTML = 'Collect Bonus (Waiting...)';
+        }
+    }, 1000);
+}
+window.updateTaskUI = updateTaskUI; 
+
+async function completeTask(){
+    if(!currentUser) return alert("Please log in first.");
+    
+    if(localStorage.getItem('task_complete_ready') !== 'true') {
+        return alert("Watch the TikTok video for 15 seconds first.");
+    }
+    
+    const snapshot = await get(child(dbRef, 'users/' + currentUser));
+    let d = snapshot.val();
+
+    if(!d.plan) return alert("Buy a plan first to earn.");
+
+    const today = new Date().toDateString();
+    let updates = {};
+
+    if(d.lastTaskDay !== today){
+        updates.tasksDone = 0; updates.lastTaskDay = today;
+        localStorage.removeItem('task_started_time'); localStorage.removeItem('task_complete_ready');
+        updateTaskUI();
+        d.tasksDone = 0;
+    }
+
+    if((d.tasksDone || 0) >= 1) return alert("You can only complete 1 task daily!");
+    
+    if(d.planExpiry && new Date(d.planExpiry) < new Date()) return alert(`Your plan has expired. Buy a new plan.`);
+
+    updates.tasksDone = (d.tasksDone || 0) + 1;
+    updates.bal = (d.bal || 0) + d.daily;
+
+    if(d.ref && d.ref !== currentUser){
+        const refSnapshot = await get(child(dbRef, 'users/' + d.ref));
+        if(refSnapshot.exists()){
+            const rd = refSnapshot.val();
+            if(rd.plan && (!rd.planExpiry || new Date(rd.planExpiry) > new Date())) {
+                const referrerUpdates = { bal: (rd.bal || 0) + 10 };
+                await update(ref(db, 'users/' + d.ref), referrerUpdates);
+            }
+        }
+    }
+
+    try {
+        await update(ref(db, 'users/' + currentUser), updates);
+        alert("Task Completed! +" + d.daily + " Rs Added.");
+        
+        localStorage.removeItem('task_started_time');
+        localStorage.removeItem('task_complete_ready');
+        updateTaskUI();
+
+    } catch(error) {
+        alert("Task completion failed: " + error.message);
+    }
+}
+window.completeTask = completeTask;
+
+function logout(){
+  localStorage.removeItem("currentUser");
+  localStorage.removeItem('task_started_time');
+  localStorage.removeItem('task_complete_ready');
+  currentUser = null;
+  location.reload(); 
+}
+window.logout = logout;
+
+function showSignup(){
+  loginPage.classList.add("hidden");
+  signupPage.classList.remove("hidden");
+}
+window.showSignup = showSignup;
+
+function showLogin(){
+  signupPage.classList.add("hidden");
+  loginPage.classList.remove("hidden");
+}
+window.showLogin = showLogin;
+</script>
+
+</body>
+</html>
